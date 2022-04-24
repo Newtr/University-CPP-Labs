@@ -1,75 +1,157 @@
 #include <iostream>
-#include <conio.h>
 
 using namespace std;
 
-//Наша структура
-struct node
+struct Node
 {
-    int info;                           //Информационное поле
-    node *l, *r;                        //Левая и Правая часть дерева
+    int x;
+    Node *left, *right;
 };
 
-node *tree = NULL;                      //Объявляем переменную, тип которой структура Дерево
-
-/*ФУНКЦИЯ ЗАПИСИ ЭЛЕМЕНТА В БИНАРНОЕ ДЕРЕВО*/
-void push(int a, node **t)
-{
-    if ((*t) == NULL)                   //Если дерева не существует
+void ShowTree(Node *&Tree){
+    if (Tree!=NULL)
     {
-        (*t) = new node;                //Выделяем память
-        (*t)->info = a;                 //Кладем в выделенное место аргумент a
-        (*t)->l = (*t)->r = NULL;       //Очищаем память для следующего роста
-        return;                         //Заложили семечко, выходим
-    }
-       //Дерево есть
-        if (a > (*t)->info) push(a, &(*t)->r); //Если аргумент а больше чем текущий элемент, кладем его вправо
-        else push(a, &(*t)->l);         //Иначе кладем его влево
-}
-
-/*ФУНКЦИЯ ОТОБРАЖЕНИЯ ДЕРЕВА НА ЭКРАНЕ*/
-void print (node *t, int u)
-{
-    if (t == NULL) return;                  //Если дерево пустое, то отображать нечего, выходим
-    else //Иначе
-    {
-        print(t->l, ++u);                   //С помощью рекурсивного посещаем левое поддерево
-        for (int i=0; i<u; ++i) cout << "|";
-        cout << t->info << endl;            //И показываем элемент
-        u--;
-    }
-    print(t->r, ++u);                       //С помощью рекурсии посещаем правое поддерево
-}
-
-void freemem(node *tree) {
-if(tree!=NULL) {
-    if (*tree->l+*tree->r == 2)
-    {
-        /* code */
+        ShowTree(Tree->left);
+        cout<<Tree->x<<"\t";
+        ShowTree(Tree->right);
     }
     
 }
+
+void AddNode(int x, Node *&Tree){
+    if (NULL==Tree)
+    {
+        Tree = new Node;
+        Tree->x=x;
+        Tree->left=Tree->right=NULL;
+    }
+    if (x<Tree->x)
+    {
+        if (Tree->left != NULL)
+        {
+            AddNode(x,Tree->left);
+        }
+        else
+        {
+            Tree->left = new Node;
+            Tree->left->left=Tree->left->right=NULL;
+            Tree->left->x=x;
+        }
+    }
+    if (x>Tree->x)
+    {
+        if (Tree->right != NULL)
+        {
+            AddNode(x,Tree->right);
+        }
+        else
+        {
+            Tree->right = new Node;
+            Tree->right->right = Tree->right->left=NULL;
+            Tree->right->x=x;
+        }
+    }
+    
 }
 
-int main ()
+struct Node* minValueNode(struct Node* node)
 {
-    int n;                              //Количество элементов
-    int s;                              //Число, передаваемое в дерево
-    cout << "введите количество элементов  ";
-    cin >> n;                           //Вводим количество элементов
+    struct Node* current = node;
+ 
+    /* loop down to find the leftmost leaf */
+    while (current && current->left != NULL)
+        current = current->left;
+ 
+    return current;
+}
 
-    for (int i=0; i<n; ++i)
-    {
-        cout << "ведите число  ";
-        cin >> s;                       //Считываем элемент за элементом
-
-        push(s, &tree);                 //И каждый кладем в дерево
+struct Node* deleteNode(struct Node* root, int key)
+{
+    // base case
+    if (root == NULL)
+        return root;
+ 
+    // If the key to be deleted is
+    // smaller than the root's
+    // key, then it lies in left subtree
+    if (key < root->x)
+        root->left = deleteNode(root->left, key);
+ 
+    // If the key to be deleted is
+    // greater than the root's
+    // key, then it lies in right subtree
+    else if (key > root->x)
+        root->right = deleteNode(root->right, key);
+ 
+    // if key is same as root's key, then This is the node
+    // to be deleted
+    else {
+        // node has no child
+        if (root->left==NULL and root->right==NULL)
+            return NULL;
+       
+        // node with only one child or no child
+        else if (root->left == NULL) {
+            struct Node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        else if (root->right == NULL) {
+            struct Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+ 
+        // node with two children: Get the inorder successor
+        // (smallest in the right subtree)
+        struct Node* temp = minValueNode(root->right);
+ 
+        // Copy the inorder successor's content to this node
+        root->x = temp->x;
+ 
+        // Delete the inorder successor
+        root->right = deleteNode(root->right, temp->x);
     }
+    return root;
+}
 
-    cout << "ваше дерево\n";
-    print(tree, 0);
-    cout<<"delete tree\n";
-    freemem(tree);
-    cout << "ваше дерево ВНОВЬ\n";
-    print(tree, 0);
+void rightLeafSum(Node *root, int *sum, int *number){
+    if(!root)
+        return;
+ 
+    // check if the right child of root
+    // is leaf node
+    if(root->right)
+        if(root->right->right && root->right->left)
+        {
+            *sum = root->right->right->x+root->right->left->x;
+            *number = root->right->x;
+        }
+ 
+    rightLeafSum(root->right, sum, number);
+}
+
+int main(){
+    Node *Tree = NULL;
+    int kolvo, UserElement;
+    int summ=0,num=0;
+    cout<<"How much elements: "<<endl;
+    cin>>kolvo;
+    while (kolvo!=0)
+    {
+        cout<<"Enter Element: ";
+        cin>>UserElement;
+        AddNode(UserElement,Tree);
+        kolvo--;
+    }
+    
+
+    ShowTree(Tree);
+    cout<<endl;
+    rightLeafSum(Tree,&summ,&num);
+    ShowTree(Tree);
+    cout<<"\nSum = "<<summ<<"\tNumber = "<<num<<endl;
+    deleteNode(Tree,num);
+    ShowTree(Tree);
+    return 0;
 }
