@@ -58,7 +58,6 @@ struct Node* minValueNode(struct Node* node)
 {
     struct Node* current = node;
  
-    /* loop down to find the leftmost leaf */
     while (current && current->left != NULL)
         current = current->left;
  
@@ -67,30 +66,17 @@ struct Node* minValueNode(struct Node* node)
 
 struct Node* deleteNode(struct Node* root, int key)
 {
-    // base case
     if (root == NULL)
         return root;
- 
-    // If the key to be deleted is
-    // smaller than the root's
-    // key, then it lies in left subtree
     if (key < root->x)
         root->left = deleteNode(root->left, key);
- 
-    // If the key to be deleted is
-    // greater than the root's
-    // key, then it lies in right subtree
     else if (key > root->x)
         root->right = deleteNode(root->right, key);
- 
-    // if key is same as root's key, then This is the node
-    // to be deleted
     else {
-        // node has no child
         if (root->left==NULL and root->right==NULL)
             return NULL;
-       
-        // node with only one child or no child
+    
+
         else if (root->left == NULL) {
             struct Node* temp = root->right;
             free(root);
@@ -101,15 +87,8 @@ struct Node* deleteNode(struct Node* root, int key)
             free(root);
             return temp;
         }
- 
-        // node with two children: Get the inorder successor
-        // (smallest in the right subtree)
         struct Node* temp = minValueNode(root->right);
- 
-        // Copy the inorder successor's content to this node
         root->x = temp->x;
- 
-        // Delete the inorder successor
         root->right = deleteNode(root->right, temp->x);
     }
     return root;
@@ -118,16 +97,12 @@ struct Node* deleteNode(struct Node* root, int key)
 void rightLeafSum(Node *root, int *sum, int *number){
     if(!root)
         return;
- 
-    // check if the right child of root
-    // is leaf node
     if(root->right)
         if(root->right->right && root->right->left)
         {
             *sum = root->right->right->x+root->right->left->x;
             *number = root->right->x;
         }
- 
     rightLeafSum(root->right, sum, number);
 }
 
